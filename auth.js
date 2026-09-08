@@ -106,6 +106,14 @@
   function enterHome() {
     document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
     document.getElementById("homeScreen")?.classList.add("active");
+    const logoutButton = document.querySelector(".return-welcome");
+    if (logoutButton) {
+      logoutButton.style.display = "inline-flex";
+      logoutButton.style.width = "auto";
+      logoutButton.style.padding = "7px 12px";
+      logoutButton.style.margin = "18px auto 0";
+      logoutButton.style.fontSize = "12px";
+    }
     if (typeof window.updateAll === "function") window.updateAll();
   }
 
