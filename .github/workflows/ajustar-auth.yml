@@ -1,0 +1,42 @@
+name: Ajustar autenticación SISGOP
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ajustar auth
+        shell: bash
+        run: |
+          set -e
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('auth.js')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace('Acceso personal · 6to B', 'Acceso personal · 6to A')
+          marker = 'window.currentSISGOPUser = currentUser;'
+          addition = '''\n\n  if (document.readyState === "loading") {\n    document.addEventListener("DOMContentLoaded", () => {\n      const saved = currentUser();\n      if (saved) {\n        enterHome();\n      } else {\n        showLogin();\n      }\n    }, { once: true });\n  } else {\n    const saved = currentUser();\n    if (saved) enterHome();\n    else showLogin();\n  }'''
+          if 'document.addEventListener("DOMContentLoaded", () => {' not in text:
+              text = text.replace(marker, marker + addition)
+          p.write_text(text, encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add auth.js
+          git commit -m 'Mostrar inicio de sesión al abrir SISGOP y corregir 6to A'
+          git push
+      - name: Eliminar workflow temporal
+        if: success()
+        run: |
+          git rm .github/workflows/ajustar-auth.yml || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'Eliminar workflow temporal de autenticación'
+          git push
