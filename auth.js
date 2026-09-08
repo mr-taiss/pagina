@@ -32,7 +32,7 @@
       box = document.createElement("div");
       box.id = "sisgopLoginOverlay";
       box.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:linear-gradient(135deg,#edf3fb,#f8fbff);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Segoe UI,Arial,sans-serif";
-      box.innerHTML = `<div style="width:min(430px,100%);background:#fff;border-radius:22px;padding:30px;box-shadow:0 20px 70px rgba(20,40,80,.2)"><div style="text-align:center"><div style="font-size:44px">🔐</div><h1 style="margin:8px 0;color:#14233f">SISGOP</h1><p style="color:#718099;margin-bottom:22px">Acceso personal · 6to B</p></div><form id="sisgopLoginForm"><label style="display:block;font-weight:700;font-size:13px;color:#334155;margin:12px 0 7px">Estudiante</label><input id="sisgopLoginUser" autocomplete="username" placeholder="Escribe tu nombre completo" required style="width:100%;padding:13px;border:1px solid #ccd5e0;border-radius:9px;box-sizing:border-box;font-size:14px"><label style="display:block;font-weight:700;font-size:13px;color:#334155;margin:14px 0 7px">Contraseña</label><div style="position:relative"><input id="sisgopLoginPassword" type="password" autocomplete="current-password" placeholder="Tu contraseña" required style="width:100%;padding:13px 48px 13px 13px;border:1px solid #ccd5e0;border-radius:9px;box-sizing:border-box;font-size:14px"><button type="button" id="sisgopEye" aria-label="Mostrar contraseña" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);border:0;background:none;cursor:pointer;font-size:20px">👁️</button></div><div id="sisgopLoginMessage" style="min-height:22px;margin:12px 0;font-size:13px"></div><button type="submit" style="width:100%;padding:13px;border:0;border-radius:9px;background:#14233f;color:#fff;font-weight:700;cursor:pointer">ENTRAR AL SISTEMA</button><button type="button" id="sisgopChangePasswordFromLogin" style="width:100%;margin-top:10px;padding:11px;border:1px solid #d7e0eb;border-radius:9px;background:#f5f8fc;color:#245ea8;font-weight:700;cursor:pointer">🔑 Cambiar contraseña</button><button type="button" id="sisgopLoginBack" style="width:100%;margin-top:10px;padding:11px;border:0;background:transparent;color:#64748b;cursor:pointer">← Volver</button></form></div>`;
+      box.innerHTML = `<div style="width:min(430px,100%);background:#fff;border-radius:22px;padding:30px;box-shadow:0 20px 70px rgba(20,40,80,.2)"><div style="text-align:center"><div style="font-size:44px">🔐</div><h1 style="margin:8px 0;color:#14233f">SISGOP</h1><p style="color:#718099;margin-bottom:22px">Acceso personal · 6to A</p></div><form id="sisgopLoginForm"><label style="display:block;font-weight:700;font-size:13px;color:#334155;margin:12px 0 7px">Estudiante</label><input id="sisgopLoginUser" autocomplete="username" placeholder="Escribe tu nombre completo" required style="width:100%;padding:13px;border:1px solid #ccd5e0;border-radius:9px;box-sizing:border-box;font-size:14px"><label style="display:block;font-weight:700;font-size:13px;color:#334155;margin:14px 0 7px">Contraseña</label><div style="position:relative"><input id="sisgopLoginPassword" type="password" autocomplete="current-password" placeholder="Tu contraseña" required style="width:100%;padding:13px 48px 13px 13px;border:1px solid #ccd5e0;border-radius:9px;box-sizing:border-box;font-size:14px"><button type="button" id="sisgopEye" aria-label="Mostrar contraseña" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);border:0;background:none;cursor:pointer;font-size:20px">👁️</button></div><div id="sisgopLoginMessage" style="min-height:22px;margin:12px 0;font-size:13px"></div><button type="submit" style="width:100%;padding:13px;border:0;border-radius:9px;background:#14233f;color:#fff;font-weight:700;cursor:pointer">ENTRAR AL SISTEMA</button><button type="button" id="sisgopChangePasswordFromLogin" style="width:100%;margin-top:10px;padding:11px;border:1px solid #d7e0eb;border-radius:9px;background:#f5f8fc;color:#245ea8;font-weight:700;cursor:pointer">🔑 Cambiar contraseña</button><button type="button" id="sisgopLoginBack" style="width:100%;margin-top:10px;padding:11px;border:0;background:transparent;color:#64748b;cursor:pointer">← Volver</button></form></div>`;
       document.body.appendChild(box);
       document.getElementById("sisgopEye").onclick = () => {
         const input = document.getElementById("sisgopLoginPassword");
@@ -166,6 +166,21 @@
   window.logoutSISGOP = logout;
   window.changePasswordSISGOP = () => showChangePassword(false);
   window.currentSISGOPUser = currentUser;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      const saved = currentUser();
+      if (saved) {
+        enterHome();
+      } else {
+        showLogin();
+      }
+    }, { once: true });
+  } else {
+    const saved = currentUser();
+    if (saved) enterHome();
+    else showLogin();
+  }
 
   document.addEventListener("click", event => {
     const entry = event.target.closest?.(".backpack-entry");
