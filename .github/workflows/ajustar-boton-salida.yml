@@ -1,0 +1,39 @@
+name: Ajustar botón cerrar sesión
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ajustar botón
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('auth.js')
+          text = p.read_text(encoding='utf-8')
+          old = 'document.getElementById("homeScreen")?.classList.add("active");\n    if (typeof window.updateAll === "function") window.updateAll();'
+          new = '''document.getElementById("homeScreen")?.classList.add("active");\n    const logoutButton = document.querySelector(".return-welcome");\n    if (logoutButton) {\n      logoutButton.style.display = "inline-flex";\n      logoutButton.style.width = "auto";\n      logoutButton.style.padding = "7px 12px";\n      logoutButton.style.margin = "18px auto 0";\n      logoutButton.style.fontSize = "12px";\n    }\n    if (typeof window.updateAll === "function") window.updateAll();'''
+          if old in text and 'logoutButton.style.display' not in text:
+              text = text.replace(old, new)
+          p.write_text(text, encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add auth.js
+          git commit -m 'Hacer pequeño el botón cerrar sesión'
+          git push
+      - name: Eliminar workflow temporal
+        if: success()
+        run: |
+          git rm .github/workflows/ajustar-boton-salida.yml || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m 'Eliminar workflow temporal del botón de salida'
+          git push
